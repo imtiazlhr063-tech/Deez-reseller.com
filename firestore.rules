@@ -1,0 +1,107 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Global Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isRuntimeAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'imtiazlhr063@gmail.com' ||
+        request.auth.token.email == 'admin@deezcosmetics.pk'
+      );
+    }
+
+    function isAdmin() {
+      return isRuntimeAdmin() || (
+        isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Public Product Catalog
+    match /products/{productId} {
+      allow read: if isValidId(productId);
+      allow create, update, delete: if isAdmin() && isValidId(productId);
+    }
+
+    // Dynamic Cosmetics Categories
+    match /categories/{categoryId} {
+      allow read: if isValidId(categoryId);
+      allow create, update, delete: if isAdmin() && isValidId(categoryId);
+    }
+
+    // Store Settings (Shipping, Brand, WhatsApp)
+    match /settings/{settingId} {
+      allow read: if isValidId(settingId);
+      allow create, update, delete: if isAdmin() && isValidId(settingId);
+    }
+
+    // Customer COD Orders
+    match /orders/{orderId} {
+      allow read: if isValidId(orderId) && (
+        isAdmin() ||
+        (isSignedIn() && resource.data.resellerId == request.auth.uid)
+      );
+      // Anyone can place an order via COD checkout
+      allow create: if isValidId(orderId) &&
+        request.resource.data.orderNumber is string &&
+        request.resource.data.orderNumber.size() <= 50 &&
+        request.resource.data.customerName is string &&
+        request.resource.data.customerName.size() <= 150 &&
+        request.resource.data.customerPhone is string &&
+        request.resource.data.customerPhone.size() <= 30 &&
+        request.resource.data.grandTotal is number &&
+        request.resource.data.status == 'Pending';
+      allow update, delete: if isAdmin() && isValidId(orderId);
+    }
+
+    // Resellers Collection
+    match /resellers/{resellerId} {
+      allow read: if isValidId(resellerId) && (
+        isAdmin() ||
+        (isSignedIn() && request.auth.uid == resellerId)
+      );
+      allow create: if isValidId(resellerId) && (
+        isAdmin() ||
+        (isSignedIn() && request.auth.uid == resellerId && request.resource.data.status == 'Pending')
+      );
+      allow update: if isValidId(resellerId) && (
+        isAdmin() ||
+        (
+          isSignedIn() &&
+          request.auth.uid == resellerId &&
+          !request.resource.data.diff(resource.data).affectedKeys().hasAny(['status', 'internalNotes', 'commissionRateOverride'])
+        )
+      );
+      allow delete: if isAdmin() && isValidId(resellerId);
+    }
+
+    // Reseller Payout Requests
+    match /payoutRequests/{payoutId} {
+      allow read: if isValidId(payoutId) && (
+        isAdmin() ||
+        (isSignedIn() && resource.data.resellerId == request.auth.uid)
+      );
+      allow create: if isValidId(payoutId) && isSignedIn() &&
+        request.resource.data.resellerId == request.auth.uid &&
+        request.resource.data.status == 'Pending';
+      allow update, delete: if isAdmin() && isValidId(payoutId);
+    }
+
+    // Platform Admins
+    match /admins/{adminId} {
+      allow read, write: if isAdmin() && isValidId(adminId);
+    }
+  }
+}

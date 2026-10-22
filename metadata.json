@@ -1,0 +1,6 @@
+{
+  "name": "DEEZ Cosmetics",
+  "description": "DEEZ Cosmetics - Pakistan's Premier Beauty Store & Reseller Platform with Cash on Delivery and automated 5% commission management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

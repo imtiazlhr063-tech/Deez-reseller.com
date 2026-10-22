@@ -1,0 +1,182 @@
+{
+  "entities": {
+    "Product": {
+      "title": "Product",
+      "description": "Cosmetics product catalog item with pricing, images, variants, and badges",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string", "maxLength": 200 },
+        "titleUrdu": { "type": "string", "maxLength": 200 },
+        "slug": { "type": "string", "maxLength": 150 },
+        "category": { "type": "string", "maxLength": 100 },
+        "price": { "type": "number" },
+        "originalPrice": { "type": "number" },
+        "salePrice": { "type": "number" },
+        "stock": { "type": "number" },
+        "sku": { "type": "string", "maxLength": 50 },
+        "image": { "type": "string", "maxLength": 1000 },
+        "description": { "type": "string", "maxLength": 2000 },
+        "sizeOrWeight": { "type": "string", "maxLength": 50 },
+        "status": { "type": "string", "enum": ["active", "draft", "archived"] },
+        "isPublished": { "type": "boolean" },
+        "featured": { "type": "boolean" },
+        "isNewArrival": { "type": "boolean" },
+        "isBestSeller": { "type": "boolean" },
+        "isSpecialOffer": { "type": "boolean" },
+        "isPlaceholder": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "title", "slug", "category", "price", "stock", "sku"]
+    },
+    "Category": {
+      "title": "Category",
+      "description": "Product catalog category",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string", "maxLength": 100 },
+        "nameUrdu": { "type": "string", "maxLength": 100 },
+        "slug": { "type": "string", "maxLength": 100 },
+        "order": { "type": "number" },
+        "isActive": { "type": "boolean" },
+        "isSpecial": { "type": "boolean" }
+      },
+      "required": ["id", "name", "slug", "order", "isActive"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Customer e-commerce order record with COD details and courier tracking",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "orderNumber": { "type": "string", "maxLength": 50 },
+        "customerName": { "type": "string", "maxLength": 150 },
+        "customerPhone": { "type": "string", "maxLength": 30 },
+        "customerEmail": { "type": "string", "maxLength": 150 },
+        "province": { "type": "string", "maxLength": 100 },
+        "city": { "type": "string", "maxLength": 100 },
+        "deliveryAddress": { "type": "string", "maxLength": 500 },
+        "orderNotes": { "type": "string", "maxLength": 1000 },
+        "subtotal": { "type": "number" },
+        "shippingFee": { "type": "number" },
+        "discountAmount": { "type": "number" },
+        "grandTotal": { "type": "number" },
+        "paymentMethod": { "type": "string", "enum": ["Cash on Delivery (COD)", "Bank Transfer", "EasyPaisa / JazzCash"] },
+        "status": { "type": "string", "enum": ["Pending", "Confirmed", "Shipped", "Delivered", "Cancelled", "Returned"] },
+        "trackingId": { "type": "string", "maxLength": 100 },
+        "courierName": { "type": "string", "maxLength": 100 },
+        "resellerId": { "type": "string" },
+        "resellerReferralCode": { "type": "string", "maxLength": 50 },
+        "commissionAmount": { "type": "number" },
+        "commissionStatus": { "type": "string", "enum": ["Pending", "Confirmed", "Cancelled", "Disbursed"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "orderNumber", "customerName", "customerPhone", "province", "city", "deliveryAddress", "grandTotal", "status"]
+    },
+    "Reseller": {
+      "title": "Reseller",
+      "description": "Approved or applicant reseller account with 5 percent commission referral data",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "fullName": { "type": "string", "maxLength": 150 },
+        "mobileNumber": { "type": "string", "maxLength": 30 },
+        "email": { "type": "string", "maxLength": 150 },
+        "city": { "type": "string", "maxLength": 100 },
+        "province": { "type": "string", "maxLength": 100 },
+        "address": { "type": "string", "maxLength": 500 },
+        "socialLink": { "type": "string", "maxLength": 250 },
+        "referralCode": { "type": "string", "maxLength": 50 },
+        "status": { "type": "string", "enum": ["Pending", "Approved", "Suspended", "Rejected"] },
+        "commissionRateOverride": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "approvedAt": { "type": "string", "format": "date-time" },
+        "internalNotes": { "type": "string", "maxLength": 3000 }
+      },
+      "required": ["id", "fullName", "mobileNumber", "city", "province", "referralCode", "status"]
+    },
+    "PayoutRequest": {
+      "title": "PayoutRequest",
+      "description": "Commission payout withdrawal request from reseller",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "resellerId": { "type": "string" },
+        "resellerName": { "type": "string", "maxLength": 150 },
+        "amount": { "type": "number" },
+        "method": { "type": "string", "enum": ["EasyPaisa", "JazzCash", "Bank Transfer"] },
+        "accountTitle": { "type": "string", "maxLength": 150 },
+        "accountNumber": { "type": "string", "maxLength": 100 },
+        "bankName": { "type": "string", "maxLength": 150 },
+        "status": { "type": "string", "enum": ["Pending", "Approved", "Rejected"] },
+        "requestedAt": { "type": "string", "format": "date-time" },
+        "processedAt": { "type": "string", "format": "date-time" },
+        "transactionRef": { "type": "string", "maxLength": 150 },
+        "adminNotes": { "type": "string", "maxLength": 1000 }
+      },
+      "required": ["id", "resellerId", "resellerName", "amount", "method", "accountTitle", "accountNumber", "status"]
+    },
+    "StoreSettings": {
+      "title": "StoreSettings",
+      "description": "Global settings for DEEZ Cosmetics platform",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "siteTitle": { "type": "string", "maxLength": 200 },
+        "shippingFee": { "type": "number" },
+        "freeShippingThreshold": { "type": "number" },
+        "whatsappNumber": { "type": "string", "maxLength": 30 },
+        "whatsappWelcomeMessage": { "type": "string", "maxLength": 500 },
+        "supportEmail": { "type": "string", "maxLength": 150 },
+        "storeAddress": { "type": "string", "maxLength": 500 },
+        "commissionRate": { "type": "number" }
+      },
+      "required": ["id", "siteTitle", "shippingFee", "freeShippingThreshold", "commissionRate"]
+    },
+    "Admin": {
+      "title": "Admin",
+      "description": "Administrative account",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "email": { "type": "string", "maxLength": 150 },
+        "name": { "type": "string", "maxLength": 150 },
+        "role": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "email", "name", "role"]
+    }
+  },
+  "firestore": {
+    "/products/{productId}": {
+      "schema": "Product",
+      "description": "Public and admin managed cosmetics catalog"
+    },
+    "/categories/{categoryId}": {
+      "schema": "Category",
+      "description": "Dynamic cosmetics categories"
+    },
+    "/orders/{orderId}": {
+      "schema": "Order",
+      "description": "Customer COD orders"
+    },
+    "/resellers/{resellerId}": {
+      "schema": "Reseller",
+      "description": "Reseller profiles and referral credentials"
+    },
+    "/payoutRequests/{payoutId}": {
+      "schema": "PayoutRequest",
+      "description": "Reseller commission withdrawal requests"
+    },
+    "/settings/{settingId}": {
+      "schema": "StoreSettings",
+      "description": "Global storefront configuration"
+    },
+    "/admins/{adminId}": {
+      "schema": "Admin",
+      "description": "Platform administrators"
+    }
+  }
+}
